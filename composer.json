@@ -1,0 +1,17 @@
+{
+  "name": "lexus27/php-regex",
+  "description": "Text utils",
+  "minimum-stability": "dev",
+  "license": "proprietary",
+  "authors": [
+	{
+	  "name": "Alexey Kutuzov",
+	  "email": "lexus27.khv@gmail.com"
+	}
+  ],
+  "autoload": {
+	"psr-4": {
+	  "Jungle\\Regex\\": "Jungle/Regex/"
+	}
+  }
+}
