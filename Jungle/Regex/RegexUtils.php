@@ -433,7 +433,11 @@ class RegexUtils{
 				case in_array($left, array_keys(self::$brackets)):
 					$right = self::$brackets[$left];
 					for($i = $len-1; $i; $i--){
-						if($regex{$i} === $right){
+						$char = $regex{$i};
+						if(in_array($char, self::$special_chars, true)){
+							break;
+						}
+						if($char === $right){
 							$delimiter_closed = $i;
 							$modifiers = substr($regex, $i+1);
 						}

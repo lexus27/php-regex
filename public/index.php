@@ -33,6 +33,9 @@ echo htmlspecialchars(print_r($decomposite,1));
 echo '</pre>';
 
 
+
+
+
 /**
  * To group
  */
@@ -44,6 +47,23 @@ echo '</pre>';
 echo '<pre>Result: ';
 echo htmlspecialchars($group);
 // (?ias:(?:hello worlds (?P'name'named pattern))(?<name>named pattern)(?P<name>named pattern))
+echo '</pre>';
+
+
+/**
+ * Decomposite regex
+ * -------------------------------
+ * bug fix for : [+\-]?[1-9][0-9]*
+ * -------------------------------
+ */
+echo '<h3>Decomposite regex</h3>';
+$pattern = '[+\-]?[1-9][0-9]*';
+$decomposite = RegexUtils::decomposite_regex($pattern);
+echo '<pre>Pattern: ';
+echo htmlspecialchars($pattern);
+echo '</pre>';
+echo '<pre>Result: ';
+echo htmlspecialchars(print_r($decomposite,1));
 echo '</pre>';
 
 
