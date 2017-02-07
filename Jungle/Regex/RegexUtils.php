@@ -463,6 +463,14 @@ class RegexUtils{
 		];
 	}
 
+	/**
+	 * @param $pattern
+	 * @return bool
+	 */
+	static function has_utf8_chars($pattern){
+		return preg_match('@[А-Яа-я]+@', $pattern) > 0;
+	}
+
 
 	/**
 	 * @param $string
