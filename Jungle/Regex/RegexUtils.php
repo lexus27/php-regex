@@ -8,6 +8,11 @@ namespace Jungle\Regex;
  */
 class RegexUtils{
 
+	/**
+	 * Version for this package
+	 */
+	const VERSION = '0.0.1';
+
 
 	/**
 	 * /s (@PCRE_DOTALL) Если данный модификатор используется, метасимвол "точка" в шаблоне соответствует всем
@@ -29,7 +34,7 @@ class RegexUtils{
 	 *     если обрабатываемый текст не содержит символов перевода строки, либо шаблон не содержит метасимволов '^'
 	 *     или '$', данный модификатор не имеет никакого эффекта.
 	 */
-	const PCRE_MULTILINE = 's';
+	const PCRE_MULTILINE = 'm';
 
 	/**
 	 * /i (@PCRE_CASELESS) Если этот модификатор используется, символы
@@ -116,11 +121,131 @@ class RegexUtils{
 
 
 
+
+	const SYM_SPACE       = '\s';
+	const SYM_NOT_SPACE   = '\S';
+
+	const SYM_WORD        = '\w';
+	const SYM_NOT_WORD    = '\W';
+
+	const SYM_DIGIT       = '\d';
+	const SYM_NOT_DIGIT   = '\D';
+
+	const SYM_BOUND       = '\b';
+	const SYM_NOT_BOUND   = '\B';
+
+
+
+	const GRP_COMMENT                       = '(?#...)';
+
+	const GRP_POSITIVE_LOOKAHEAD            = '(?=...)';
+	const GRP_NEGATIVE_LOOKAHEAD            = '(?!...)';
+	const GRP_POSITIVE_LOOKBEHIND           = '(?<=...)';
+	const GRP_NEGATIVE_LOOKBEHIND           = '(?<!...)';
+
+	const GRP_ENCLOSED                      = '(?:...)';
+	const GRP_ATOMIC                        = '(?>...)';
+
+	const GRP_CONDITIONAL                   = '(?(...)yes|no)';
+
+	const GRP_INLINE_MODIFIERS_1            = '(?imsxXU)';
+	const GRP_INLINE_MODIFIERS_2            = '(?imsxXU:...)';
+
+
+	const GRP_BASIC                         = '(...)';
+	const GRP_BRANCH_RESET                  = '(?|...)';
+
+	const GRP_NAMED_ANG_OLD                 = '(?P<name>...)';
+	const GRP_NAMED_QUOT                    = "(?'name'...)";
+	const GRP_NAMED_ANG                     = '(?<name>...)';
+
+	const GRP_RECURSE_ENTIRE                = '(?R)';
+	const GRP_RECURSE_NAMED                 = '(?&name)';
+
+	const GRP_RECURSE_NTN_ABS               = '(?1)';
+	const GRP_RECURSE_NTN_BEFORE            = '(?-1)';
+	const GRP_RECURSE_NTN_AFTER             = '(?+1)';
+
+
+
+	const MATCH_SUBPATTERN_PREV_NTN_ABS     = "\\1";
+
+	const MATCH_SUBPATTERN_PREV_NAMED_QUOT  = "\\g'name'";
+	const MATCH_SUBPATTERN_PREV_NAMED_ANG   = "\\g<name>";
+	const MATCH_SUBPATTERN_PREV_NAMED_FIG   = "\\g{name}";
+
+	const MATCH_SUBPATTERN_NAMED_GRP        = '(?P=name)';
+	const MATCH_SUBPATTERN_NAMED_QUOT       = "\\k'name'";
+	const MATCH_SUBPATTERN_NAMED_ANG        = "\\k<name>";
+	const MATCH_SUBPATTERN_NAMED_FIG        = "\\k{name}";
+
+
+	const MATCH_SUBPATTERN_NTN_ABS          = "\\g1";
+	const MATCH_SUBPATTERN_NTN_FIG_ABS      = "\\g{1}";
+	const MATCH_SUBPATTERN_NTN_FIG_AFTER    = "\\g{+1}";
+	const MATCH_SUBPATTERN_NTN_FIG_BEFORE   = "\\g{-1}";
+
+	const MATCH_SUBPATTERN_NTN_QUOT_ABS     = "\\g'1'";
+	const MATCH_SUBPATTERN_NTN_QUOT_AFTER   = "\\g'+1'";
+	const MATCH_SUBPATTERN_NTN_QUOT_BEFORE  = "\\g'-1'";
+
+	const MATCH_SUBPATTERN_NTN_ANG_ABS      = "\\g<1>";
+	const MATCH_SUBPATTERN_NTN_ANG_AFTER    = "\\g<+1>";
+	const MATCH_SUBPATTERN_NTN_ANG_BEFORE   = "\\g<-1>";
+
+// в tpl нужно будет игнорировать внутренние маски шаблонов типов
+// как вставить один шаблон в другой, чтобы при этом имена масок не конфликтовали:
+//      А отчищать маски подстановочного,
+//      Б использовать смещение и подсчет индексных масок
+
+// Темплейт - много под шаблонов, даже компоновка, матчинг,
+// проход по обработчиком каждого шаблона с передачей объекта-информатора
+// который дает информацию только в контексте шаблона от нулевого индекса
+// capture->getParam(0) -> params[ prev_offset + 0 ]
+// pattern->onMatched(function(CallerContext $o){ $o[0] })
+// template - match | match_all | replace(pattern-retain | pattern-replace)
+
+
+	/**
+	 * @param $char
+	 * @return int
+	 */
+	public static function get_case($char){
+		return strtolower($char) === $char ? CASE_LOWER : CASE_UPPER;
+	}
+
+	// todo: Поддержка модификации именованных шаблонов
+	// индексные группы:        [ (...) ]
+	// именованные группы:      [ (?<name>...), (?P<name>...), (?P'name'...) ] (?<name>...)
+	// рекурсивные повторения:  [ (?P>name), (?&name), (?1), (?R) ]
+	// ссылки на совпадение:    [ \1, \g{-1}, \k'name' ]
+
+	// todo: Поддержка рекурсивных повторений: (?P>name) или (?&name), (?1), (?R)
+
+	// todo: Изменение индексных масок offset для шаблона в котором используются индексные рекурсивные ссылки
+	// (?1) > (?{1 + $offset})
+
+	// todo: Изменение именованых масок (обратных и рекурсивных ссылок, и именованых груп)
+	// (?<name>...) > (?<prefix+name>...)
+	// (?P<name>...) > (?P<prefix+name>...)
+	// (?P'name'...) > (?P'prefix+name'...)
+
+
 	/** @var array */
 	protected static $not_capturing_signs = [
-		'?#', '?:', '?>',
-		'?=', '?!', '?<=',
-		'?<!', '?P='
+		'?#',   //comment
+		'?:',   // not capture
+		'?>',   // atomic
+		'?=',   // look ahead
+		'?!',   // not look ahead
+		'?<=',  // look behind
+		'?<!',  // not look behind
+		'?P=',  // named sub pattern link
+		'?P>',  // recurse sub-pattern
+		'?(',   // conditional sign
+		'?R)',   // recursive global repeat pattern
+		'?&',   // recursive sub pattern
+		'*',   // special token for inline options
 	];
 
 	/** @var array */
@@ -191,25 +316,114 @@ class RegexUtils{
 			$token = $pattern{$i};
 			if($token === '('){
 				if(self::count_repeat_before($pattern, $i,'\\') % 2 == 0){
-					$capture = !self::byte_has_after($pattern, $i, self::$not_capturing_signs);
-					if($capture && substr($pattern,$i+1, 1) === '?'){
-						$iii = 0;
-						for($ii = $i+2; $ii < $len; $ii++){
-							$char = $pattern{$ii};
-							if(!in_array($char, self::$special_chars, true)){
-								$iii++;
-							}elseif($char === ':'){
-								$capture = !$iii;
-								break;
-							}
-						}
-					}
+					$capture = self::_is_capturing_group($pattern, $i);
 					if($capture) return true;
 				}
 			}
 		}
 		return false;
 
+	}
+
+	/**
+	 * @param $pattern
+	 * @param $position
+	 * @return bool
+	 */
+	protected static function _is_capturing_group($pattern, $position){
+		if(!self::byte_has_after($pattern, $position, self::$not_capturing_signs)){
+
+			// inline modifiers
+			if(substr($pattern,$position+1,1)==='?' &&  !in_array(self::byte_read_after($pattern, $position,1,1),self::$special_chars)){
+				return false;
+			}
+
+			return true;
+		}
+		return false;
+	}
+
+
+
+
+	/**
+	 *
+	 * todo: Доработать корректное отличие Захватываемой маски, от не захватываемой
+	 * todo: Данная функция может работать некорректно для рекурсивных повторений (?P>name) или (?&name), (?1), (?R)
+	 *
+	 * @param $pattern
+	 * @return array
+	 * total: All groups count
+	 * captured: [opened_pos, closed_pos, order_index, name, is_coverer(?|...)]
+	 * transparent: [opened_pos, closed_pos, order_index, covered(in coverer)]
+	 *
+	 * preg_match('....', 'some text', $matches)
+	 * foreach(returned[captured] as $i => $c){
+	 *     $matches[$i]
+	 * }
+	 * @throws RegexException
+	 */
+	public static function analyze_groups($pattern){
+		$len = strlen($pattern);
+		$total_opened = 0;
+		$index = 0;
+		$opened = [ ];
+		$captured_groups = [ ];
+		$transparent_groups = [ ];
+		$covering = [];
+		for($i = 0; $i < $len; $i++){
+			$token = $pattern{$i};
+			if($token === '('){
+				if(self::count_repeat_before($pattern, $i,'\\') % 2 == 0){
+					$is_coverer = false;
+					if(substr($pattern, $i+1, 2) === '?|'){
+						// some indexed
+						$capture = true;
+						$is_coverer = true;
+						$covering[] = true;
+					}else{
+						$capture = self::_is_capturing_group($pattern, $i);
+					}
+					$name = $capture? self::find_group_name($pattern, $i+1): null;
+					$opened[] = [ $i, $capture, $total_opened, $name, $is_coverer];
+					$total_opened++;
+				}
+			}elseif($token === ')'){
+				if(self::count_repeat_before($pattern, $i,'\\') % 2 == 0){
+					if($opened){
+						list($pos, $capture, $absolute_index, $name, $is_coverer) = array_pop($opened);
+
+						if($is_coverer){
+							array_pop($covering);
+						}
+
+						if($capture && !$covering){
+							$index++;
+							$captured_groups[] = [ $pos, $i, $absolute_index, $name, $is_coverer ];
+						}else{
+							$transparent_groups[] = [ $pos, $i, $absolute_index, null, !!$covering];
+						}
+					}else{
+						throw new RegexException('Error have not expected closed groups!');
+					}
+				}
+			}
+		}
+		if($opened){
+			throw new RegexException(
+				'Error have not closed opened groups by offset at \'' .
+				implode('\' and \'', array_column($opened, 0)) . '\''
+			);
+		}
+		usort($captured_groups, [self::class, '_sort_groups']);
+		usort($transparent_groups, [self::class, '_sort_groups']);
+		array_unshift($captured_groups, null);
+		unset($captured_groups[0]);
+		return [
+			'total'       => $total_opened,
+			'captured'    => $captured_groups,
+			'transparent' => $transparent_groups
+		];
 	}
 
 	/**
@@ -238,83 +452,6 @@ class RegexUtils{
 		}
 		return $name?:null;
 	}
-
-
-	/**
-	 * @param $pattern
-	 * @return array
-	 * total: All groups count
-	 * captured: [opened_pos, closed_pos, order_index, name]
-	 * transparent: [opened_pos, closed_pos, order_index]
-	 *
-	 * preg_match('....', 'some text', $matches)
-	 * foreach(returned[captured] as $i => $c){
-	 *     $matches[$i]
-	 * }
-	 * @throws RegexException
-	 */
-	public static function analyze_groups($pattern){
-		$len = strlen($pattern);
-		$total_opened = 0;
-		$index = 0;
-		$opened = [ ];
-		$captured_groups = [ ];
-		$transparent_groups = [ ];
-		for($i = 0; $i < $len; $i++){
-			$token = $pattern{$i};
-			if($token === '('){
-				if(self::count_repeat_before($pattern, $i,'\\') % 2 == 0){
-					$capture = !self::byte_has_after($pattern, $i, self::$not_capturing_signs);
-					if($capture && substr($pattern,$i+1, 1) === '?'){
-						$iii = 0;
-						for($ii = $i+2; $ii < $len; $ii++){
-							$char = $pattern{$ii};
-							if(!in_array($char, self::$special_chars, true)){
-								$iii++;
-							}elseif($char === ':'){
-								$capture = !$iii;
-								break;
-							}
-						}
-					}
-					$name = $capture? self::find_group_name($pattern, $i+1): null;
-					$opened[] = [ $i, $capture, $total_opened, $name];
-					$total_opened++;
-				}
-			}elseif($token === ')'){
-				if(self::count_repeat_before($pattern, $i,'\\') % 2 == 0){
-					if($opened){
-						list($pos, $capture, $absolute_index, $name) = array_pop($opened);
-						if($capture){
-							$index++;
-							$captured_groups[] = [ $pos, $i, $absolute_index, $name ];
-						}else{
-							$transparent_groups[] = [ $pos, $i, $absolute_index, null];
-						}
-					}else{
-						throw new RegexException('Error have not expected closed groups!');
-					}
-				}
-			}
-		}
-		if($opened){
-			throw new RegexException(
-				'Error have not closed opened groups by offset at \'' .
-				implode('\' and \'', array_column($opened, 0)) . '\''
-			);
-		}
-		usort($captured_groups, [self::class, '_sort_groups']);
-		usort($transparent_groups, [self::class, '_sort_groups']);
-		array_unshift($captured_groups, null);
-		unset($captured_groups[0]);
-		return [
-			'total'       => $total_opened,
-			'captured'    => $captured_groups,
-			'transparent' => $transparent_groups
-		];
-	}
-
-
 
 	/**
 	 * @param $regex
