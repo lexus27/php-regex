@@ -47,3 +47,25 @@ print_r( RegexUtils::analyze_groups(
 ));
 echo '</pre>';
 
+
+
+echo '<pre>Include references analyzing';
+print_r( RegexUtils::analyze_groups(
+	'/(?<name>\d+) hello (?-1)/gi' , true
+));
+echo '</pre>';
+
+
+echo '<pre>Include references analyzing';
+print_r( RegexUtils::analyze_groups(
+	'/(?<name>\d+) hello \g{-1}/gi' , true
+));
+echo '</pre>';
+
+
+echo '<pre>Include references analyzing';
+echo htmlspecialchars(print_r( RegexUtils::modify_identifiers(
+	'/(?<name>\d+) hello \g{1} (?&name) (?R)/gi' , 5, 'herova_', 'pattern_1_ctx'
+),1));
+echo '</pre>';
+

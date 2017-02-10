@@ -122,18 +122,23 @@ class RegexUtils{
 
 
 
-	const SYM_SPACE       = '\s';
-	const SYM_NOT_SPACE   = '\S';
+	const SYM_SPACE         = '\s';
+	const SYM_NOT_SPACE     = '\S';
 
-	const SYM_WORD        = '\w';
-	const SYM_NOT_WORD    = '\W';
+	const SYM_WORD          = '\w';
+	const SYM_NOT_WORD      = '\W';
 
-	const SYM_DIGIT       = '\d';
-	const SYM_NOT_DIGIT   = '\D';
+	const SYM_DIGIT         = '\d';
+	const SYM_NOT_DIGIT     = '\D';
 
-	const SYM_BOUND       = '\b';
-	const SYM_NOT_BOUND   = '\B';
+	const SYM_BOUND         = '\b';
+	const SYM_NOT_BOUND     = '\B';
 
+	const SYM_DATA_START    = '\A';
+	const SYM_DATA_END      = '\Z';
+
+	const SYM_LINE_START    = '^';
+	const SYM_LINE_END      = '$';
 
 
 	const GRP_COMMENT                       = '(?#...)';
@@ -193,12 +198,13 @@ class RegexUtils{
 	const MATCH_SUBPATTERN_NTN_ANG_AFTER    = "\\g<+1>";
 	const MATCH_SUBPATTERN_NTN_ANG_BEFORE   = "\\g<-1>";
 
+
 // в tpl нужно будет игнорировать внутренние маски шаблонов типов
 // как вставить один шаблон в другой, чтобы при этом имена масок не конфликтовали:
 //      А отчищать маски подстановочного,
 //      Б использовать смещение и подсчет индексных масок
 
-// Темплейт - много под шаблонов, даже компоновка, матчинг,
+// Темплейт - много под шаблонов, реплейсинг, матчинг, сопостовление
 // проход по обработчиком каждого шаблона с передачей объекта-информатора
 // который дает информацию только в контексте шаблона от нулевого индекса
 // capture->getParam(0) -> params[ prev_offset + 0 ]
@@ -243,9 +249,9 @@ class RegexUtils{
 		'?P=',  // named sub pattern link
 		'?P>',  // recurse sub-pattern
 		'?(',   // conditional sign
-		'?R)',   // recursive global repeat pattern
+		'?R)',  // recursive global repeat pattern
 		'?&',   // recursive sub pattern
-		'*',   // special token for inline options
+		'*',    // special token for inline options
 	];
 
 	/** @var array */
@@ -344,37 +350,90 @@ class RegexUtils{
 	}
 
 
-
-
 	/**
 	 *
 	 * todo: Доработать корректное отличие Захватываемой маски, от не захватываемой
 	 * todo: Данная функция может работать некорректно для рекурсивных повторений (?P>name) или (?&name), (?1), (?R)
 	 *
 	 * @param $pattern
-	 * @return array
+	 * @param bool $include_references
+	 * @return array total: All groups count
 	 * total: All groups count
 	 * captured: [opened_pos, closed_pos, order_index, name, is_coverer(?|...)]
 	 * transparent: [opened_pos, closed_pos, order_index, covered(in coverer)]
 	 *
 	 * preg_match('....', 'some text', $matches)
 	 * foreach(returned[captured] as $i => $c){
-	 *     $matches[$i]
+	 * $matches[$i]
 	 * }
 	 * @throws RegexException
 	 */
-	public static function analyze_groups($pattern){
+	public static function analyze_groups($pattern, $include_references = false){
 		$len = strlen($pattern);
 		$total_opened = 0;
 		$index = 0;
 		$opened = [ ];
 		$captured_groups = [ ];
 		$transparent_groups = [ ];
+
+		$links_to_patterns = [ ];
+		$links_to_matches  = [ ];
+
 		$covering = [];
 		for($i = 0; $i < $len; $i++){
 			$token = $pattern{$i};
 			if($token === '('){
 				if(self::count_repeat_before($pattern, $i,'\\') % 2 == 0){
+
+					if($include_references){
+						//--------------deep analyzing--------------------
+						$__ = substr($pattern,$i+1);
+						if(preg_match('@^\?P=(\w+)\)@', $__, $m, PREG_OFFSET_CAPTURE)){
+							$name = $m[1][0];
+							$length = strlen($m[0][0]);
+							$links_to_matches[] = [
+								'absolute'              => true,
+								'name'                  => $name,
+								'offset'                => null,
+								'reference_position'    => [ $i , $length+1 ]
+							];
+							$i+= $length;
+							continue;
+						}elseif(preg_match('@^\?R\)@', $__, $m, PREG_OFFSET_CAPTURE)){
+							$length = strlen($m[0][0]);
+							$links_to_patterns[] = [
+								'absolute'              => true,
+								'name'                  => null,
+								'offset'                => null,
+								'reference_position'    => [ $i , $length+1 ]
+							];
+							$i+= $length;
+							continue;
+						}elseif(preg_match('@^\?(?:\&(\w+)|([-+]\d+))\)@', $__, $m, PREG_OFFSET_CAPTURE)){
+							$length = strlen($m[0][0]);
+							$name = isset($m[1][0]) && is_string($m[1][0])?$m[1][0]:null;
+							$offset = isset($m[2][0]) && is_string($m[2][0])?$m[2][0]:null;
+							if($name){
+								$links_to_patterns[] = [
+									'absolute'              => true,
+									'name'                  => $name,
+									'offset'                => null,
+									'reference_position'    => [ $i , $length+1 ]
+								];
+							}else{
+								$links_to_patterns[] = [
+									'absolute'              => is_numeric(substr($offset,0,1)),
+									'name'                  => null,
+									'offset'                => $offset,
+									'reference_position'    => [ $i , $length+1 ]
+								];
+							}
+							$i+= $length;
+							continue;
+						}
+						//----end----deep analyzing--------------------
+					}
+
 					$is_coverer = false;
 					if(substr($pattern, $i+1, 2) === '?|'){
 						// some indexed
@@ -407,6 +466,60 @@ class RegexUtils{
 						throw new RegexException('Error have not expected closed groups!');
 					}
 				}
+			}elseif($include_references && $token === '\\'){
+				//----start----deep analyzing--------------------
+				$start = $i;
+				$i++;
+				$token = $pattern{$i};
+				if(is_numeric($token)){
+					$offset = $token;
+					$length = strlen($offset)+1;
+					$links_to_matches[] = [
+						'absolute'              => true,
+						'name'                  => null,
+						'offset'                => $offset,
+						'reference_position'    => [ $start , $length ]
+					];
+					$i+=$length;
+				}elseif($token==='k'){
+					$__ = substr($pattern,$i);
+					if(preg_match('@^k\{(\w+)\}@',$__, $m,PREG_OFFSET_CAPTURE)
+						|| preg_match('@^k\'(\w+)\'@',$__, $m,PREG_OFFSET_CAPTURE)
+						|| preg_match('@^k\<(\w+)\>@',$__, $m,PREG_OFFSET_CAPTURE)
+					){
+						$name = $m[1][0];
+						$length = strlen($m[0][0]);
+						$links_to_matches[] = [
+							'absolute'              => null,
+							'name'                  => $name,
+							'offset'                => null,
+							'reference_position'    => [ $start, $length + 1 ]
+						];
+						$i+=$length;
+					}
+
+				}elseif($token==='g'){
+					$__ = substr($pattern,$i);
+					if(preg_match('@^g([-+]?\d+)@',$__, $m,PREG_OFFSET_CAPTURE)
+						|| preg_match('@^g\{([-+]?\d+)\}@',$__, $m,PREG_OFFSET_CAPTURE)
+						|| preg_match('@^g\'([-+]?\d+)\'@',$__, $m,PREG_OFFSET_CAPTURE)
+						|| preg_match('@^g\<([-+]?\d+)\>@',$__, $m,PREG_OFFSET_CAPTURE)
+					){
+						$offset = $m[1][0];
+						$signing = substr($offset,0,1);
+						$length = strlen($m[0][0]);
+						$links_to_matches[] = [
+							'absolute'              => !in_array($signing,['+','-'], true),
+							'name'                  => null,
+							'offset'                => $offset,
+							'reference_position'    => [ $start , $length+1 ]
+						];
+						$i+=$length;
+					}
+				}else{
+					$i--;
+				}
+				//----end----deep analyzing--------------------
 			}
 		}
 		if($opened){
@@ -419,11 +532,95 @@ class RegexUtils{
 		usort($transparent_groups, [self::class, '_sort_groups']);
 		array_unshift($captured_groups, null);
 		unset($captured_groups[0]);
-		return [
-			'total'       => $total_opened,
-			'captured'    => $captured_groups,
-			'transparent' => $transparent_groups
+		$result = [
+			'total'                 => $total_opened,
+			'captured'              => $captured_groups,
+			'transparent'           => $transparent_groups,
 		];
+		if($include_references){
+			$result = array_replace($result,[
+				'links_to_matches'        => $links_to_matches,
+				'links_to_patterns'       => $links_to_patterns,
+			]);
+		}
+		return $result;
+	}
+
+
+	/**
+	 * @param $pattern
+	 * @param int $offset
+	 * @param null $prefix
+	 * @param null $global_link_pat
+	 * @return mixed
+	 * @throws RegexException
+	 */
+	static function modify_identifiers($pattern, $offset=0, $prefix=null, $global_link_pat = null){
+
+		$metadata = self::analyze_groups($pattern,true);
+
+		$to_modify = [];
+		foreach($metadata['links_to_matches'] as $link){
+			if($link['absolute']){
+				$to_modify[$link['reference_position'][0]] = array_replace([
+					'type' => 'links_to_matches'
+				],$link);
+			}
+		}
+		foreach($metadata['links_to_patterns'] as $link){
+			if($link['absolute']){
+				$to_modify[$link['reference_position'][0]] = array_replace([
+					'type' => 'links_to_patterns'
+				],$link);
+			}
+		}
+		foreach($metadata['captured'] as $link){
+			if(is_array($link[3])){
+				$to_modify[$link[0]] = array_replace([
+					'type' => 'groups',
+					'name' => $link[3][0],
+					'name_pos' => [$link[3][1], $link[3][2]]
+				],$link);
+			}
+		}
+		ksort($to_modify);
+
+		foreach(array_reverse($to_modify) as $link){
+			$pos = [0,0];
+			$val = null;
+			switch($link['type']){
+				case 'links_to_matches':
+					$pos = $link['reference_position'];
+					if($link['name']){
+						$val = '\k{'.($prefix . $link['name']).'}';
+					}elseif($link['offset']){
+						$val = '\g{'.($offset + $link['offset']).'}';
+					}
+					break;
+				case 'links_to_patterns':
+					$pos = $link['reference_position'];
+					if($link['name']){
+						$val = '(?&'.($prefix . $link['name']).')';
+					}elseif($link['offset']){
+						$val = '(?'.($offset + $link['offset']).')';
+					}elseif($global_link_pat){
+						if(is_numeric($global_link_pat)){
+							$val = '(?'.($global_link_pat).')';
+						}else{
+							$val = '(?&'.($global_link_pat).')';
+						}
+					}
+					break;
+				case 'groups':
+					$pos = $link['name_pos'];
+					$val = ($prefix . $link['name']);
+					break;
+			}
+			if($val){
+				$pattern = substr_replace( $pattern , $val ,$pos[0],$pos[1]);
+			}
+		}
+		return $pattern;
 	}
 
 	/**
@@ -432,10 +629,10 @@ class RegexUtils{
 	 * @return null|string
 	 */
 	static function find_group_name($string, $position){
-		$name = null;
+		$name = null;$start = null;
 		if('?P<' === ($n = substr($string, $position, 3)) || $n === '?P\''){
 			$name = '';
-			for($i = $position + 3, $l = strlen($string); $i < $l; $i++){
+			for($start = $i = $position + 3, $l = strlen($string); $i < $l; $i++){
 				if(in_array($string{$i}, self::$special_chars, true)){
 					break;
 				}
@@ -443,14 +640,14 @@ class RegexUtils{
 			}
 		}elseif('?<' === ($n = substr($string, $position, 2))){
 			$name = '';
-			for($i = $position + 2, $l = strlen($string); $i < $l; $i++){
+			for($start = $i = $position + 2, $l = strlen($string); $i < $l; $i++){
 				if(in_array($string{$i}, self::$special_chars, true)){
 					break;
 				}
 				$name.=$string{$i};
 			}
 		}
-		return $name?:null;
+		return $name?[$name, $start, strlen($name)]:null;
 	}
 
 	/**
@@ -864,17 +1061,13 @@ class RegexUtils{
 	 */
 	static function strip_backslashes($string, $charlist){
 		if(is_array($charlist)) $charlist = implode($charlist);
-		$positions = [];
 		for($i = 0, $l = strlen($string); $i < $l; $i++){
 			$char = $string{$i};
-			if(strpos($charlist, $char)!==false){
-				if(self::byte_read_before($string, $i, 1) === '\\'){
-					$positions[] = $i - 1;
-				}
+			if( strpos($charlist, $char) !== false && substr($string,$i-1, 1) === '\\' ){
+				$string = substr_replace($string, '', $i-1, 1);
+				$i--;
+				$l--;
 			}
-		}
-		foreach(array_reverse($positions) as $position){
-			$string = substr_replace($string, '', $position, 1);
 		}
 		return $string;
 	}
