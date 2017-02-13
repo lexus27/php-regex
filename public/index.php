@@ -42,30 +42,34 @@ echo '</pre>';
 
 
 echo '<pre>inline modifiers2';
-print_r( RegexUtils::analyze_groups(
+echo htmlspecialchars(print_r( RegexUtils::analyze_groups(
 	'/(?>\w+)/gi'
-));
+),1));
 echo '</pre>';
 
 
 
 echo '<pre>Include references analyzing';
-print_r( RegexUtils::analyze_groups(
+echo htmlspecialchars(print_r( RegexUtils::analyze_groups(
 	'/(?<name>\d+) hello (?-1)/gi' , true
-));
+),1));
 echo '</pre>';
 
 
 echo '<pre>Include references analyzing';
-print_r( RegexUtils::analyze_groups(
+echo htmlspecialchars(print_r( print_r( RegexUtils::analyze_groups(
 	'/(?<name>\d+) hello \g{-1}/gi' , true
-));
+)),1));
 echo '</pre>';
 
 
-echo '<pre>Include references analyzing';
+echo '<pre>modify_identifiers<br/>';
 echo htmlspecialchars(print_r( RegexUtils::modify_identifiers(
 	'/(?<name>\d+) hello \g{1} (?&name) (?R)/gi' , 5, 'herova_', 'pattern_1_ctx'
 ),1));
 echo '</pre>';
 
+
+echo '<pre>strip_backslashes  \'\A \\\\B\' <br/>';
+echo htmlspecialchars(print_r( RegexUtils::strip_backslashes('\A \\\\B','AB'),1));
+echo '</pre>';

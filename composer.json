@@ -1,6 +1,6 @@
 {
   "name": "lexus27/php-regex",
-  "description": "Text utils",
+  "description": "PCRE Regex Utils for analyzing and pre processing",
   "minimum-stability": "dev",
   "license": "proprietary",
   "authors": [
@@ -11,7 +11,12 @@
   ],
   "autoload": {
 	"psr-4": {
-	  "Jungle\\Regex\\": "Jungle/Regex/"
+	  "Jungle\\Regex\\": "src/"
+	}
+  },
+  "autoload-dev": {
+	"psr-4": {
+	  "Jungle\\Regex\\Tests\\": "tests/"
 	}
   }
 }
