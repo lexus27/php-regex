@@ -116,87 +116,110 @@ class RegexUtils{
 	 *     считались допустимыми.
 	 */
 	const PCRE_UTF8 = 'u';
+	
+	
+	
+	const M_CAPTURED_COUNT = 'capturedCount';
+	const M_POSITIONS = 'positions';
+	const M_TYPES = 'types';
+	const M_DATA = 'data';
+	
+	
+	const A_LINK_COVERER = 'coverer';
+	
+	
+	static $pcre_modifiers = [
+		self::PCRE_ANCHORED,
+		self::PCRE_CACHED,
+		self::PCRE_CASELESS,
+		self::PCRE_DOLLAR_END_ONLY,
+		self::PCRE_DOTALL,
+		self::PCRE_EXTENDED,
+		self::PCRE_EXTRA,
+		self::PCRE_MULTILINE,
+		self::PCRE_UNGREDDY,
+		self::PCRE_UTF8
+	];
 
 
 
 
+	const SYM_SPACE         = '\s';// символьный-класс пробельные символы включая перевод строки или табуляцию
+	const SYM_NOT_SPACE     = '\S';// символьный-класс не пробельные символы
+
+	const SYM_WORD          = '\w';// символьный-класс словоформирующие символы, это буквы, цифры, знак нижнего подчеркивания
+	const SYM_NOT_WORD      = '\W';// символьный-класс не словоформирующие символы
+
+	const SYM_DIGIT         = '\d';// символьный-класс цифры
+	const SYM_NOT_DIGIT     = '\D';// символьный-класс не цифры
+
+	const SYM_BOUND         = '\b';// псевдо символьный-класс ограничитель слова
+	const SYM_NOT_BOUND     = '\B';// псевдо символьный-класс не ограничитель слова
+
+	const SYM_DATA_START    = '\A';// начало данных
+	const SYM_DATA_END      = '\Z';// конец данных
+
+	const SYM_LINE_START    = '^';// начало строки
+	const SYM_LINE_END      = '$';// конец строки
 
 
-	const SYM_SPACE         = '\s';
-	const SYM_NOT_SPACE     = '\S';
+	const GRP_COMMENT                       = '(?#...)';    // комментарий
 
-	const SYM_WORD          = '\w';
-	const SYM_NOT_WORD      = '\W';
+	const GRP_POSITIVE_LOOKAHEAD            = '(?=...)';    //   ?=  указывает что после этой группы, должно стоять того что указано в шаблоне
+	const GRP_NEGATIVE_LOOKAHEAD            = '(?!...)';    //   ?!  указывает что после этой группы, не должно стоять того что указано в шаблоне
+	const GRP_POSITIVE_LOOKBEHIND           = '(?<=...)';   // ?<= указывает что до этой группы, должно стоять того что указано в шаблоне
+	const GRP_NEGATIVE_LOOKBEHIND           = '(?<!...)';   // ?<! указывает что до этой группы, не должно стоять того что указано в шаблоне
 
-	const SYM_DIGIT         = '\d';
-	const SYM_NOT_DIGIT     = '\D';
+	const GRP_ENCLOSED                      = '(?:...)';    // просто группа, которая не захватывается
+	const GRP_ATOMIC                        = '(?>...)';    // атомическая группа
 
-	const SYM_BOUND         = '\b';
-	const SYM_NOT_BOUND     = '\B';
+	const GRP_CONDITIONAL                   = '(?(...)yes|no)'; // условие где за булеву берется результат маски по ссылке
 
-	const SYM_DATA_START    = '\A';
-	const SYM_DATA_END      = '\Z';
-
-	const SYM_LINE_START    = '^';
-	const SYM_LINE_END      = '$';
+	const GRP_INLINE_MODIFIERS_POINT        = '(?imsxXU)';      // указывает модификаторы для последующих условностей
+	const GRP_INLINE_MODIFIERS_WRAP         = '(?imsxXU:...)';  // указывает модификаторы для собственной незахватываемой группы, то есть образует группу где внутри себя действуют эти модификаторы
 
 
-	const GRP_COMMENT                       = '(?#...)';
+	const GRP_BASIC                         = '(...)';      // именованная подмаска/ устарело
+	const GRP_BRANCH_RESET                  = '(?|...)';    // подмаска не захватывает все любые вложенные в неё подмаски
 
-	const GRP_POSITIVE_LOOKAHEAD            = '(?=...)';
-	const GRP_NEGATIVE_LOOKAHEAD            = '(?!...)';
-	const GRP_POSITIVE_LOOKBEHIND           = '(?<=...)';
-	const GRP_NEGATIVE_LOOKBEHIND           = '(?<!...)';
+	const GRP_NAMED_ANG_OLD                 = '(?P<name>...)';  // именованная подмаска/ устарело
+	const GRP_NAMED_QUOT                    = "(?'name'...)";   // именованная подмаска
+	const GRP_NAMED_ANG                     = '(?<name>...)';   // именованная подмаска
 
-	const GRP_ENCLOSED                      = '(?:...)';
-	const GRP_ATOMIC                        = '(?>...)';
+	const GRP_RECURSE_ENTIRE                = '(?R)';       // проверяет в этом месте вхождения на соотвентствие шаблону по ссылке
+	const GRP_RECURSE_NAMED                 = '(?&name)';   // проверяет в этом месте вхождения на соотвентствие шаблону по ссылке
+	const GRP_RECURSE_AFTER_NAMED           = '(?P>name)';  // проверяет в этом месте вхождения на соотвентствие шаблону по ссылке
 
-	const GRP_CONDITIONAL                   = '(?(...)yes|no)';
-
-	const GRP_INLINE_MODIFIERS_1            = '(?imsxXU)';
-	const GRP_INLINE_MODIFIERS_2            = '(?imsxXU:...)';
-
-
-	const GRP_BASIC                         = '(...)';
-	const GRP_BRANCH_RESET                  = '(?|...)';
-
-	const GRP_NAMED_ANG_OLD                 = '(?P<name>...)';
-	const GRP_NAMED_QUOT                    = "(?'name'...)";
-	const GRP_NAMED_ANG                     = '(?<name>...)';
-
-	const GRP_RECURSE_ENTIRE                = '(?R)';
-	const GRP_RECURSE_NAMED                 = '(?&name)';
-
-	const GRP_RECURSE_NTN_ABS               = '(?1)';
-	const GRP_RECURSE_NTN_BEFORE            = '(?-1)';
-	const GRP_RECURSE_NTN_AFTER             = '(?+1)';
+	const GRP_RECURSE_NTN_ABS               = '(?1)';       // проверяет в этом месте вхождения на соотвентствие шаблону по ссылке
+	const GRP_RECURSE_NTN_BEFORE            = '(?-1)';      // проверяет в этом месте вхождения на соотвентствие шаблону по ссылке
+	const GRP_RECURSE_NTN_AFTER             = '(?+1)';      // проверяет в этом месте вхождения на соотвентствие шаблону по ссылке
 
 
 
-	const MATCH_SUBPATTERN_PREV_NTN_ABS     = "\\1";
+	const MATCH_SUBPATTERN_PREV_NTN_ABS     = "\\1"; // ссылка на результат уже проведенного сопоставления
 
-	const MATCH_SUBPATTERN_PREV_NAMED_QUOT  = "\\g'name'";
-	const MATCH_SUBPATTERN_PREV_NAMED_ANG   = "\\g<name>";
-	const MATCH_SUBPATTERN_PREV_NAMED_FIG   = "\\g{name}";
+	const MATCH_SUBPATTERN_PREV_NAMED_QUOT  = "\\g'name'"; // ссылка на результат уже проведенного сопоставления / только на предидущую
+	const MATCH_SUBPATTERN_PREV_NAMED_ANG   = "\\g<name>"; // ссылка на результат уже проведенного сопоставления / только на предидущую
+	const MATCH_SUBPATTERN_PREV_NAMED_FIG   = "\\g{name}"; // ссылка на результат уже проведенного сопоставления / только на предидущую
 
-	const MATCH_SUBPATTERN_NAMED_GRP        = '(?P=name)';
-	const MATCH_SUBPATTERN_NAMED_QUOT       = "\\k'name'";
-	const MATCH_SUBPATTERN_NAMED_ANG        = "\\k<name>";
-	const MATCH_SUBPATTERN_NAMED_FIG        = "\\k{name}";
+	const MATCH_SUBPATTERN_NAMED_GRP        = '(?P=name)'; // ссылка на результат уже проведенного сопоставления
+	const MATCH_SUBPATTERN_NAMED_QUOT       = "\\k'name'"; // ссылка на результат уже проведенного сопоставления
+	const MATCH_SUBPATTERN_NAMED_ANG        = "\\k<name>"; // ссылка на результат уже проведенного сопоставления
+	const MATCH_SUBPATTERN_NAMED_FIG        = "\\k{name}"; // ссылка на результат уже проведенного сопоставления
 
 
-	const MATCH_SUBPATTERN_NTN_ABS          = "\\g1";
-	const MATCH_SUBPATTERN_NTN_FIG_ABS      = "\\g{1}";
-	const MATCH_SUBPATTERN_NTN_FIG_AFTER    = "\\g{+1}";
-	const MATCH_SUBPATTERN_NTN_FIG_BEFORE   = "\\g{-1}";
+	const MATCH_SUBPATTERN_NTN_ABS          = "\\g1";       // ссылка на результат уже проведенного сопоставления
+	const MATCH_SUBPATTERN_NTN_FIG_ABS      = "\\g{1}";     // ссылка на результат уже проведенного сопоставления
+	const MATCH_SUBPATTERN_NTN_FIG_AFTER    = "\\g{+1}";    // ссылка на результат уже проведенного сопоставления
+	const MATCH_SUBPATTERN_NTN_FIG_BEFORE   = "\\g{-1}";    // ссылка на результат уже проведенного сопоставления
 
-	const MATCH_SUBPATTERN_NTN_QUOT_ABS     = "\\g'1'";
-	const MATCH_SUBPATTERN_NTN_QUOT_AFTER   = "\\g'+1'";
-	const MATCH_SUBPATTERN_NTN_QUOT_BEFORE  = "\\g'-1'";
+	const MATCH_SUBPATTERN_NTN_QUOT_ABS     = "\\g'1'";     // ссылка на результат уже проведенного сопоставления
+	const MATCH_SUBPATTERN_NTN_QUOT_AFTER   = "\\g'+1'";    // ссылка на результат уже проведенного сопоставления
+	const MATCH_SUBPATTERN_NTN_QUOT_BEFORE  = "\\g'-1'";    // ссылка на результат уже проведенного сопоставления
 
-	const MATCH_SUBPATTERN_NTN_ANG_ABS      = "\\g<1>";
-	const MATCH_SUBPATTERN_NTN_ANG_AFTER    = "\\g<+1>";
-	const MATCH_SUBPATTERN_NTN_ANG_BEFORE   = "\\g<-1>";
+	const MATCH_SUBPATTERN_NTN_ANG_ABS      = "\\g<1>";     // ссылка на результат уже проведенного сопоставления
+	const MATCH_SUBPATTERN_NTN_ANG_AFTER    = "\\g<+1>";    // ссылка на результат уже проведенного сопоставления
+	const MATCH_SUBPATTERN_NTN_ANG_BEFORE   = "\\g<-1>";    // ссылка на результат уже проведенного сопоставления
 
 
 // в tpl нужно будет игнорировать внутренние маски шаблонов типов
@@ -272,12 +295,18 @@ class RegexUtils{
 	];
 
 	public static $special_chars = [
-		'^', '~', '@', '#', '$', '&',
-		'%', '*', '-', '+', '=',
-		'\\', '/', '|',
-		';', ':', '?', '!', '.', ',',
-		'"', '\'', '`',
-		'{','}', '[',']','(',')','<', '>'
+		
+		'^', '~', '@', '#', '$', '&',       // specials
+		
+		'%', '*', '-', '+', '=',            // math
+		
+		'\\', '/', '|',                     // slashed backslashes and |
+		
+		';', ':', '?', '!', '.', ',',       // punctuation
+		
+		'"', '\'', '`',                     // quotation
+		
+		'{','}', '[',']','(',')','<', '>'   // brackets
 	];
 
 	public static $digit_chars = [
@@ -289,7 +318,9 @@ class RegexUtils{
 		'.','.',';',
 		':','!','?'
 	];
-
+	public static $quotation_chars = [
+		'`','"','\'',
+	];
 
 
 	/**
@@ -348,8 +379,31 @@ class RegexUtils{
 		}
 		return false;
 	}
-
-
+	
+	const A_TOTAL_GROUPS = 'total';
+	
+	const A_CAPTURED_INDEXED = 'capturedIndexed';
+	const A_CAPTURED = 'captured';
+	const A_SUBMASK_POS         = 0;
+	const A_SUBMASK_LEN         = 1;
+	const A_SUBMASK_INDEX       = 2;
+	const A_SUBMASK_NAME        = 3;
+	const A_SUBMASK_COVERER     = 4;
+	
+	const A_TRANSPARENT = 'transparent';
+	const A_TRANSPARENT_POS         = 0;
+	const A_TRANSPARENT_LEN         = 1;
+	const A_TRANSPARENT_INDEX       = 2;
+	const A_TRANSPARENT_COVERER     = 3;
+	
+	const A_LINKS_TO_MATCHES  = 'links_to_matches';
+	const A_LINKS_TO_PATTERNS = 'links_to_patterns';
+	
+	const A_LINK_ABSOLUTE        = 'absolute';
+	const A_LINK_NAME            = 'name';
+	const A_LINK_OFFSET          = 'offset';
+	const A_LINK_REF             = 'reference_position';
+	
 	/**
 	 *
 	 * todo: Доработать корректное отличие Захватываемой маски, от не захватываемой
@@ -357,15 +411,46 @@ class RegexUtils{
 	 *
 	 * @param $pattern
 	 * @param bool $include_references
-	 * @return array total: All groups count
-	 * total: All groups count
-	 * captured: [opened_pos, closed_pos, order_index, name, is_coverer(?|...)]
-	 * transparent: [opened_pos, closed_pos, order_index, covered(in coverer)]
+	 * @return array
+	 *
+	 *            total: All groups count
+	 *            captured: indexInResult => [opened_pos, closed_pos, order_index, name, is_coverer(?|...)]
+	 *            transparent: [opened_pos, closed_pos, order_index, covered(in coverer)]
+	 *
+	 *            links_to_matches: [
+	 *                'absolute'              => true,
+	 *                'name'                  => $name,
+	 *                'offset'                => null,
+	 *                'reference_position'    => [ $i , $length+1 ]
+	 *            ]
+	 *            links_to_patterns: [
+	 *                'absolute'              => true,
+	 *                'name'                  => null,
+	 *                'offset'                => null,
+	 *                'reference_position'    => [ $i , $length+1 ]
+	 *            ];
 	 *
 	 * preg_match('....', 'some text', $matches)
 	 * foreach(returned[captured] as $i => $c){
 	 * $matches[$i]
 	 * }
+	 *
+	 *
+	 * $links_to_matches[] = [
+	 *     'absolute'              => true,
+	 *     'name'                  => $name,
+	 *     'offset'                => null,
+	 *     'reference_position'    => [ $i , $length+1 ]
+	 * ];
+	 * $links_to_patterns[] = [
+	 *     'absolute'              => true,
+	 *     'name'                  => null,
+	 *     'offset'                => null,
+	 *     'reference_position'    => [ $i , $length+1 ]
+	 * ];
+	 * $captured_groups[]       = [ $pos, $i, $absolute_index, $name, $is_coverer ];
+	 * $transparent_groups[]    = [ $pos, $i, $absolute_index, null, !!$covering];
+	 *
 	 * @throws RegexException
 	 */
 	public static function analyze_groups($pattern, $include_references = false){
@@ -391,22 +476,25 @@ class RegexUtils{
 						if(preg_match('@^\?P=(\w+)\)@', $__, $m, PREG_OFFSET_CAPTURE)){
 							$name = $m[1][0];
 							$length = strlen($m[0][0]);
-							$links_to_matches[] = [
-								'absolute'              => true,
-								'name'                  => $name,
-								'offset'                => null,
-								'reference_position'    => [ $i , $length+1 ]
+							
+							$links_to_matches[] = $linkToMatch = [
+								self::A_LINK_ABSOLUTE => true,
+								self::A_LINK_NAME     => $name,
+								self::A_LINK_OFFSET   => null,
+								self::A_LINK_REF      => [ $i , $length+1 ]
 							];
+							
 							$i+= $length;
 							continue;
 						}elseif(preg_match('@^\?R\)@', $__, $m, PREG_OFFSET_CAPTURE)){
 							$length = strlen($m[0][0]);
-							$links_to_patterns[] = [
-								'absolute'              => true,
-								'name'                  => null,
-								'offset'                => null,
-								'reference_position'    => [ $i , $length+1 ]
+							$links_to_patterns[] = $linkToMatch = [
+								self::A_LINK_ABSOLUTE => true,
+								self::A_LINK_NAME     => null,
+								self::A_LINK_OFFSET   => null,
+								self::A_LINK_REF      => [ $i , $length+1 ]
 							];
+							
 							$i+= $length;
 							continue;
 						}elseif(preg_match('@^\?(?:\&(\w+)|([-+]\d+))\)@', $__, $m, PREG_OFFSET_CAPTURE)){
@@ -414,20 +502,22 @@ class RegexUtils{
 							$name = isset($m[1][0]) && is_string($m[1][0])?$m[1][0]:null;
 							$offset = isset($m[2][0]) && is_string($m[2][0])?$m[2][0]:null;
 							if($name){
-								$links_to_patterns[] = [
-									'absolute'              => true,
-									'name'                  => $name,
-									'offset'                => null,
-									'reference_position'    => [ $i , $length+1 ]
+								$links_to_patterns[] = $linkToMatch = [
+									self::A_LINK_ABSOLUTE => true,
+									self::A_LINK_NAME     => $name,
+									self::A_LINK_OFFSET   => null,
+									self::A_LINK_REF      => [ $i , $length+1 ]
 								];
 							}else{
-								$links_to_patterns[] = [
-									'absolute'              => is_numeric(substr($offset,0,1)),
-									'name'                  => null,
-									'offset'                => $offset,
-									'reference_position'    => [ $i , $length+1 ]
+								$links_to_patterns[] = $linkToMatch = [
+									self::A_LINK_ABSOLUTE => is_numeric(substr($offset,0,1)),
+									self::A_LINK_NAME     => null,
+									self::A_LINK_OFFSET   => $offset,
+									self::A_LINK_REF      => [ $i , $length+1 ]
 								];
+								
 							}
+							
 							$i+= $length;
 							continue;
 						}
@@ -468,57 +558,67 @@ class RegexUtils{
 				}
 			}elseif($include_references && $token === '\\'){
 				//----start----deep analyzing--------------------
+				
 				$start = $i;
 				$i++;
-				$token = $pattern{$i};
-				if(is_numeric($token)){
-					$offset = $token;
-					$length = strlen($offset)+1;
-					$links_to_matches[] = [
-						'absolute'              => true,
-						'name'                  => null,
-						'offset'                => $offset,
-						'reference_position'    => [ $start , $length ]
-					];
-					$i+=$length;
-				}elseif($token==='k'){
-					$__ = substr($pattern,$i);
-					if(preg_match('@^k\{(\w+)\}@',$__, $m,PREG_OFFSET_CAPTURE)
-						|| preg_match('@^k\'(\w+)\'@',$__, $m,PREG_OFFSET_CAPTURE)
-						|| preg_match('@^k\<(\w+)\>@',$__, $m,PREG_OFFSET_CAPTURE)
-					){
-						$name = $m[1][0];
-						$length = strlen($m[0][0]);
+				
+				if(isset($pattern{$i})){
+					$token = $pattern{$i};
+					
+					if(is_numeric($token)){
+						$offset = $token;
+						$length = strlen($offset)+1;
 						$links_to_matches[] = [
-							'absolute'              => null,
-							'name'                  => $name,
-							'offset'                => null,
-							'reference_position'    => [ $start, $length + 1 ]
+							self::A_LINK_ABSOLUTE => true,
+							self::A_LINK_NAME     => null,
+							self::A_LINK_OFFSET   => $offset,
+							self::A_LINK_REF      => [ $start , $length ]
 						];
 						$i+=$length;
+					}elseif($token==='k'){
+						$__ = substr($pattern,$i);
+						if(preg_match('@^k\{(\w+)\}@',$__, $m,PREG_OFFSET_CAPTURE)
+						   || preg_match('@^k\'(\w+)\'@',$__, $m,PREG_OFFSET_CAPTURE)
+						   || preg_match('@^k\<(\w+)\>@',$__, $m,PREG_OFFSET_CAPTURE)
+						){
+							$name = $m[1][0];
+							$length = strlen($m[0][0]);
+							$links_to_matches[] = [
+								self::A_LINK_ABSOLUTE => null,
+								self::A_LINK_NAME     => $name,
+								self::A_LINK_OFFSET   => null,
+								self::A_LINK_REF      => [ $start, $length + 1 ]
+							];
+							$i+=$length;
+						}
+						
+					}elseif($token==='g'){
+						$__ = substr($pattern,$i);
+						if(preg_match('@^g([-+]?\d+)@',$__, $m,PREG_OFFSET_CAPTURE)
+						   || preg_match('@^g\{([-+]?\d+)\}@',$__, $m,PREG_OFFSET_CAPTURE)
+						   || preg_match('@^g\'([-+]?\d+)\'@',$__, $m,PREG_OFFSET_CAPTURE)
+						   || preg_match('@^g\<([-+]?\d+)\>@',$__, $m,PREG_OFFSET_CAPTURE)
+						){
+							$offset = $m[1][0];
+							$signing = substr($offset,0,1);
+							$length = strlen($m[0][0]);
+							$links_to_matches[] = [
+								self::A_LINK_ABSOLUTE => !in_array($signing,['+','-'], true),
+								self::A_LINK_NAME     => null,
+								self::A_LINK_OFFSET   => $offset,
+								self::A_LINK_REF      => [ $start , $length+1 ]
+							];
+							$i+=$length;
+						}
+					}else{
+						$i--;
 					}
-
-				}elseif($token==='g'){
-					$__ = substr($pattern,$i);
-					if(preg_match('@^g([-+]?\d+)@',$__, $m,PREG_OFFSET_CAPTURE)
-						|| preg_match('@^g\{([-+]?\d+)\}@',$__, $m,PREG_OFFSET_CAPTURE)
-						|| preg_match('@^g\'([-+]?\d+)\'@',$__, $m,PREG_OFFSET_CAPTURE)
-						|| preg_match('@^g\<([-+]?\d+)\>@',$__, $m,PREG_OFFSET_CAPTURE)
-					){
-						$offset = $m[1][0];
-						$signing = substr($offset,0,1);
-						$length = strlen($m[0][0]);
-						$links_to_matches[] = [
-							'absolute'              => !in_array($signing,['+','-'], true),
-							'name'                  => null,
-							'offset'                => $offset,
-							'reference_position'    => [ $start , $length+1 ]
-						];
-						$i+=$length;
-					}
+					
 				}else{
 					$i--;
 				}
+				
+				
 				//----end----deep analyzing--------------------
 			}
 		}
@@ -530,20 +630,171 @@ class RegexUtils{
 		}
 		usort($captured_groups, [self::class, '_sort_groups']);
 		usort($transparent_groups, [self::class, '_sort_groups']);
+		
 		array_unshift($captured_groups, null);
 		unset($captured_groups[0]);
+		
+		
 		$result = [
-			'total'                 => $total_opened,
-			'captured'              => $captured_groups,
-			'transparent'           => $transparent_groups,
+			self::A_TOTAL_GROUPS => $total_opened,
+			self::A_CAPTURED     => $captured_groups,
+			self::A_TRANSPARENT  => $transparent_groups,
 		];
 		if($include_references){
 			$result = array_replace($result,[
-				'links_to_matches'        => $links_to_matches,
-				'links_to_patterns'       => $links_to_patterns,
+				self::A_LINKS_TO_MATCHES => $links_to_matches,
+				self::A_LINKS_TO_PATTERNS  => $links_to_patterns,
 			]);
 		}
 		return $result;
+	}
+	
+	/**
+	 * @param $pattern
+	 * @return array
+	 */
+	static function analyzeRegexpMetadata($pattern){
+		
+		$__ = self::analyze_groups($pattern, true);
+		
+		$captured_groups    = $__[self::A_CAPTURED];
+		$transparent_groups = $__[self::A_TRANSPARENT];
+		$links_to_matches   = $__[self::A_LINKS_TO_MATCHES];
+		$links_to_patterns  = $__[self::A_LINKS_TO_PATTERNS];
+		
+		$i = 0;
+		$positionsMeta = [];
+		$positionsType = [];
+		$positionsData = [];
+		
+		foreach($captured_groups as $index => list($pos, $endPos, $absoluteIndex, $name, $isCoverer)){
+			// Учет только именованных
+			if($name){
+				list($name, $nPos, $nLen) = $name;
+				
+				$positionsMeta[$i] = [$nPos, $nLen];
+				$positionsType[$i] = self::A_CAPTURED;
+				$positionsData[$i] = [
+					self::A_LINK_NAME       => $name,
+					self::A_LINK_OFFSET     => $index,
+					self::A_LINK_COVERER    => $isCoverer,
+				];
+				$i++;
+			}else{
+				$positionsMeta[$i] = null;
+				$positionsType[$i] = self::A_CAPTURED_INDEXED;
+				$positionsData[$i] = [
+					self::A_LINK_OFFSET     => $index,
+					self::A_LINK_COVERER    => $isCoverer,
+				];
+				$i++;
+			}
+		}
+		foreach($transparent_groups as list($pos, $endPos, $absoluteIndex, $isCoverer)){
+			$positionsMeta[$i] = [$pos, $endPos - $pos];
+			$positionsType[$i] = self::A_TRANSPARENT;
+			$positionsData[$i] = null;
+			$i++;
+		}
+		
+		foreach($links_to_matches as $data){
+			$positionsMeta[$i] = $data[self::A_LINK_REF];
+			$positionsType[$i] = self::A_LINKS_TO_MATCHES;
+			$positionsData[$i] = [
+				self::A_LINK_ABSOLUTE => $data[self::A_LINK_ABSOLUTE],
+				self::A_LINK_NAME => $data[self::A_LINK_NAME],
+				self::A_LINK_OFFSET => $data[self::A_LINK_OFFSET],
+			];
+			$i++;
+		}
+		foreach($links_to_patterns as $data){
+			$positionsMeta[$i] = $data[self::A_LINK_REF];
+			$positionsType[$i] = self::A_LINKS_TO_PATTERNS;
+			$positionsData[$i] = [
+				self::A_LINK_ABSOLUTE => $data[self::A_LINK_ABSOLUTE],
+				self::A_LINK_NAME => $data[self::A_LINK_NAME],
+				self::A_LINK_OFFSET => $data[self::A_LINK_OFFSET],
+			];
+			$i++;
+		}
+		
+		$positionsMeta = StringDataCarrier::sortByPosition($positionsMeta, true);
+		
+		return [
+			self::M_CAPTURED_COUNT => count($captured_groups), // подсчет всех захватываемых масок
+			self::M_POSITIONS      => $positionsMeta,
+			self::M_TYPES          => $positionsType,
+			self::M_DATA           => $positionsData
+		];
+	}
+	
+	/**
+	 * @param $pattern
+	 * @param int $offset
+	 * @param null $prefix
+	 * @param null $global_link_pat
+	 * @return array [pattern, metadata]
+	 */
+	static function modifyRegexpByMetadata($pattern, $metadata, $offset=0, $prefix=null, $global_link_pat = null){
+		$data = &$metadata[self::M_DATA];
+		
+		$values = [];
+		
+		$ltm    = array_keys($metadata[self::M_TYPES], self::A_LINKS_TO_MATCHES, true);
+		$ltp    = array_keys($metadata[self::M_TYPES], self::A_LINKS_TO_PATTERNS, true);
+		$c      = array_keys($metadata[self::M_TYPES], self::A_CAPTURED, true);
+		
+		foreach($ltm as $i){
+			$link = &$data[$i];
+			if($link[self::A_LINK_ABSOLUTE]){
+				if($link[self::A_LINK_NAME]){
+					$value = $link[self::A_LINK_NAME] = (  $prefix . $link[self::A_LINK_NAME]  );
+					$value = '\k{'.(  $value  ).'}';
+				}else{
+					$value = $link[self::A_LINK_OFFSET] = (  $offset + $link[self::A_LINK_OFFSET]  );
+					$value = '\g{'.(  $value  ).'}';
+				}
+				$values[$i] = $value;
+			}
+		}
+		foreach($ltp as $i){
+			$link = &$data[$i];
+			if($link[self::A_LINK_ABSOLUTE]){
+				$value = null;
+				if($link[self::A_LINK_NAME]){
+					$value = $link[self::A_LINK_NAME] = (  $prefix . $link[self::A_LINK_NAME]  );
+				}elseif($link[self::A_LINK_OFFSET]){
+					$value = $link[self::A_LINK_OFFSET] = (  $offset + $link[self::A_LINK_OFFSET]  );
+				}elseif($global_link_pat){
+					$value = $global_link_pat;
+					if(!is_numeric($global_link_pat)){
+						$link[self::A_LINK_NAME]    = $value;
+						$link[self::A_LINK_OFFSET]  = null;
+					}else{
+						$link[self::A_LINK_NAME]    = null;
+						$link[self::A_LINK_OFFSET]  = $value;
+					}
+				}
+				if($value!==null){
+					if(is_numeric($value)){
+						$value = '(?'.(  $value  ).'}';
+					}else{
+						$value = '(?&'.(  $value  ).'}';
+					}
+					$values[$i] = $value;
+				}
+			}
+		}
+		foreach($c as $i){
+			$link = &$data[$i];
+			$value = $link[self::A_LINK_NAME] = (  $prefix . $link[self::A_LINK_NAME]  );
+			$values[$i] = $value;
+		}
+		
+		list($pattern, $metadata[self::M_POSITIONS]) = StringDataCarrier::replace($pattern, $metadata[self::M_POSITIONS], $values);
+		
+		return [$pattern, $metadata];
+		
 	}
 
 
@@ -556,21 +807,37 @@ class RegexUtils{
 	 * @throws RegexException
 	 */
 	static function modify_identifiers($pattern, $offset=0, $prefix=null, $global_link_pat = null){
-
 		$metadata = self::analyze_groups($pattern,true);
-
+		return self::modify_identifiers_metadata($pattern, $metadata, $offset, $prefix, $global_link_pat);
+	}
+	
+	
+	/**
+	 * @param $pattern
+	 * @param $metadata
+	 * @param int $offset
+	 * @param null $prefix
+	 * @param null $global_link_pat
+	 * @return mixed
+	 */
+	static function modify_identifiers_metadata($pattern, $metadata, $offset=0, $prefix=null, $global_link_pat = null){
+		
+		//$metadata = self::analyze_groups($pattern,true);
+		
 		$to_modify = [];
-		foreach($metadata['links_to_matches'] as $link){
+		foreach($metadata['links_to_matches'] as &$link){
 			if($link['absolute']){
 				$to_modify[$link['reference_position'][0]] = array_replace([
-					'type' => 'links_to_matches'
+					'type' => 'links_to_matches',
+					//'_ref' => &$link
 				],$link);
 			}
 		}
 		foreach($metadata['links_to_patterns'] as $link){
 			if($link['absolute']){
 				$to_modify[$link['reference_position'][0]] = array_replace([
-					'type' => 'links_to_patterns'
+					'type' => 'links_to_patterns',
+					//'_ref' => &$link
 				],$link);
 			}
 		}
@@ -579,12 +846,13 @@ class RegexUtils{
 				$to_modify[$link[0]] = array_replace([
 					'type' => 'groups',
 					'name' => $link[3][0],
-					'name_pos' => [$link[3][1], $link[3][2]]
+					'name_pos' => [$link[3][1], $link[3][2]],
+					//'_ref' => &$link
 				],$link);
 			}
 		}
 		ksort($to_modify);
-
+		
 		foreach(array_reverse($to_modify) as $link){
 			$pos = [0,0];
 			$val = null;
@@ -618,11 +886,13 @@ class RegexUtils{
 			}
 			if($val){
 				$pattern = substr_replace( $pattern , $val ,$pos[0],$pos[1]);
+				// (?<string>[a-zA-Z]+(?<string_dot>\.))(?<int>\d+)
 			}
 		}
 		return $pattern;
 	}
-
+	
+	
 	/**
 	 * @param $string
 	 * @param $position
@@ -732,9 +1002,11 @@ class RegexUtils{
 				$modifiers = '';
 
 				// такая вот выборка модификаторов посимвольно пока не дойдет до :
-				for($i = 2, $char = $regex{$i};
+				for(
+					$i = 2, $char = $regex{$i};
 					$char!==':' && $i < $len && ($modifiers.=$char);
-					$i++, $char = $regex{$i}){}
+					$i++, $char = $regex{$i}
+				){}
 
 				if($char === ':'){
 					$pattern = substr($regex, $i+1 , -1);
@@ -815,6 +1087,7 @@ class RegexUtils{
 	static function count_repeat_before($string, $position, $needle){
 		$l = strlen($needle);
 		for($repeat_at = 0; self::byte_read_before($string, $position, $l, $repeat_at) === $needle; $repeat_at+=$l){}
+
 		return $repeat_at;
 	}
 

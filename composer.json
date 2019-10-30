@@ -18,5 +18,8 @@
 	"psr-4": {
 	  "Jungle\\Regex\\Tests\\": "tests/"
 	}
+  },
+  "require-dev": {
+	"phpunit/phpunit": "^5.7"
   }
 }
